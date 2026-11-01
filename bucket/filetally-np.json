@@ -1,0 +1,72 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
+  "version": "1.0.1",
+  "description": "Local page and file counter for document collections",
+  "homepage": "https://filetally.com/",
+  "license": {
+    "identifier": "Shareware",
+    "url": "https://filetally.com/eula"
+  },
+  "architecture": {
+    "64bit": {
+      "url": "https://filetally.com/downloads/v1.0.1/FileTallySetup.exe#/setup.exe",
+      "hash": "44c4c31ae15cf6a5acc5aa9717f80701b70a1840e29ba25dd5e316b728b316f2"
+    }
+  },
+  "installer": {
+    "script": [
+      "$ErrorActionPreference = 'Stop'",
+      "$installDir = Join-Path $env:LOCALAPPDATA 'Programs\\FileTally Desktop'",
+      "$registration = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\com.filetally.windows'",
+      "$preferences = 'HKCU:\\Software\\FileTally\\Desktop'",
+      "$receipt = Join-Path $installDir 'FileTally-scoop.json'",
+      "$appFile = Join-Path $installDir 'FileTally.exe'",
+      "$uninstaller = Join-Path $installDir 'uninstall.exe'",
+      "if ($global) { throw 'FileTally supports per-user Scoop installation only.' }",
+      "if (-not [Environment]::Is64BitOperatingSystem -or [Environment]::OSVersion.Version.Major -lt 10) { throw 'FileTally requires 64-bit Windows 10 or later.' }",
+      "# NSIS retains its unnamed installation-directory preference after uninstall.",
+      "if (Test-Path -LiteralPath $preferences) {",
+      "  $remembered = Get-Item -LiteralPath $preferences -Force",
+      "  try {",
+      "    if ($remembered.GetValueKind('') -ne [Microsoft.Win32.RegistryValueKind]::String -or $remembered.GetValue('', $null, [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames) -ne $installDir) { throw 'FileTally remembers an unknown installation location. No files were changed.' }",
+      "  } finally { $remembered.Dispose() }",
+      "}",
+      "if (Test-Path -LiteralPath $registration) { throw 'FileTally is already installed. This package will not adopt or update an existing direct installation.' }",
+      "if (Test-Path -LiteralPath $installDir) { throw 'The FileTally installation folder already exists. No files were changed.' }",
+      "$process = Start-Process -FilePath (Join-Path $dir 'setup.exe') -ArgumentList '/S' -Wait -PassThru",
+      "if ($process.ExitCode -ne 0) { throw \"FileTally installer exited with code $($process.ExitCode).\" }",
+      "$installed = Get-ItemProperty -LiteralPath $registration",
+      "if ($installed.InstallLocation.Trim('\"') -ne $installDir) { throw 'The installer did not register the expected per-user location.' }",
+      "if ((Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash -ne '595cf9e598a07220ece01a2feb9471e4082e6c4f96c90b72f6b209a7c84cbd76') { throw 'The installed app does not match the accepted release.' }",
+      "@{ app = (Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash; uninstaller = (Get-FileHash -LiteralPath $uninstaller -Algorithm SHA256).Hash } | ConvertTo-Json -Compress | Set-Content -LiteralPath $receipt -Encoding Ascii"
+    ]
+  },
+  "uninstaller": {
+    "script": [
+      "$ErrorActionPreference = 'Stop'",
+      "$installDir = Join-Path $env:LOCALAPPDATA 'Programs\\FileTally Desktop'",
+      "$registration = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\com.filetally.windows'",
+      "$receipt = Join-Path $installDir 'FileTally-scoop.json'",
+      "$appFile = Join-Path $installDir 'FileTally.exe'",
+      "$uninstaller = Join-Path $installDir 'uninstall.exe'",
+      "if (-not (Test-Path -LiteralPath $receipt) -or -not (Test-Path -LiteralPath $registration)) { throw 'This package does not own the existing FileTally installation. Use its original installation channel.' }",
+      "if ((Get-Item -LiteralPath $installDir -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'A linked installation folder cannot be managed by this package.' }",
+      "$installed = Get-ItemProperty -LiteralPath $registration",
+      "if ($installed.InstallLocation.Trim('\"') -ne $installDir) { throw 'FileTally installation location changed; package operation stopped.' }",
+      "$proof = Get-Content -LiteralPath $receipt -Raw | ConvertFrom-Json",
+      "if ($proof.app -ne (Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash -or $proof.uninstaller -ne (Get-FileHash -LiteralPath $uninstaller -Algorithm SHA256).Hash) { throw 'FileTally changed outside this package. No files were removed.' }",
+      "$process = Start-Process -FilePath $uninstaller -ArgumentList '/S' -Wait -PassThru",
+      "if ($process.ExitCode -ne 0) { throw \"FileTally uninstaller exited with code $($process.ExitCode).\" }",
+      "if (Test-Path -LiteralPath $registration) { throw 'FileTally uninstall registration remains; the ownership receipt was preserved.' }",
+      "if (Test-Path -LiteralPath $appFile) { throw 'FileTally app remains; the ownership receipt was preserved.' }",
+      "Remove-Item -LiteralPath $receipt",
+      "if (-not (Get-ChildItem -LiteralPath $installDir -Force)) { Remove-Item -LiteralPath $installDir }"
+    ]
+  },
+  "notes": [
+    "Seven-day full-feature trial, then a one-time license. See https://filetally.com/licensing.",
+    "Runs the signed per-user NSIS installer; this is not a portable build.",
+    "Use one installation channel. Existing direct installations are never adopted.",
+    "Uninstall preserves licenses, trial history and saved scans."
+  ]
+}
