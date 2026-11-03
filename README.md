@@ -15,12 +15,12 @@ For later releases, use `scoop update` followed by `scoop update filetally-np`. 
 
 ## Chocolatey
 
-Download `filetally.1.0.1.nupkg` and `SHA256SUMS.txt` from [release v1.0.1](https://github.com/abobilly/filetally-packages/releases/tag/v1.0.1) into a fresh local folder. Compare `Get-FileHash .\filetally.1.0.1.nupkg -Algorithm SHA256` with the checksum file.
+Download `filetally.1.1.0.nupkg` and `SHA256SUMS.txt` from [release v1.1.0](https://github.com/abobilly/filetally-packages/releases/tag/v1.1.0) into a fresh local folder. Compare `Get-FileHash .\filetally.1.1.0.nupkg -Algorithm SHA256` with the checksum file.
 
 Use a user-writable Chocolatey installation from a non-elevated shell, under the Windows account that will use FileTally. From the package folder:
 
 ```powershell
-choco install filetally --version 1.0.1 --source . --yes
+choco install filetally --version 1.1.0 --source . --yes
 ```
 
 For a later accepted package, download it into a new folder and run `choco upgrade filetally --source . --yes` there. Remove the app with `choco uninstall filetally --yes` under the same account. The GitHub release URL hosts downloads; the local package folder is Chocolatey's source.

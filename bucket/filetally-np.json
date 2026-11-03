@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Local page and file counter for document collections",
   "homepage": "https://filetally.com/",
   "license": {
@@ -9,8 +9,8 @@
   },
   "architecture": {
     "64bit": {
-      "url": "https://filetally.com/downloads/v1.0.1/FileTallySetup.exe#/setup.exe",
-      "hash": "44c4c31ae15cf6a5acc5aa9717f80701b70a1840e29ba25dd5e316b728b316f2"
+      "url": "https://filetally.com/downloads/v1.1.0/FileTallySetup.exe#/setup.exe",
+      "hash": "0ca128139b2b5ac6606da7cd103ab7e432f1e0f287348fa222e976cc6f03a6be"
     }
   },
   "installer": {
@@ -37,7 +37,7 @@
       "if ($process.ExitCode -ne 0) { throw \"FileTally installer exited with code $($process.ExitCode).\" }",
       "$installed = Get-ItemProperty -LiteralPath $registration",
       "if ($installed.InstallLocation.Trim('\"') -ne $installDir) { throw 'The installer did not register the expected per-user location.' }",
-      "if ((Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash -ne '595cf9e598a07220ece01a2feb9471e4082e6c4f96c90b72f6b209a7c84cbd76') { throw 'The installed app does not match the accepted release.' }",
+      "if ((Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash -ne '9f49bec65985bd9e772829a8527bdfb1383152e53de7e90dd49ff51c8fda4a18') { throw 'The installed app does not match the accepted release.' }",
       "@{ app = (Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash; uninstaller = (Get-FileHash -LiteralPath $uninstaller -Algorithm SHA256).Hash } | ConvertTo-Json -Compress | Set-Content -LiteralPath $receipt -Encoding Ascii"
     ]
   },
