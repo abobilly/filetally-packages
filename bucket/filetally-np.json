@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
-  "version": "1.1.0",
+  "version": "1.2.3",
   "description": "Local page and file counter for document collections",
   "homepage": "https://filetally.com/",
   "license": {
@@ -9,8 +9,8 @@
   },
   "architecture": {
     "64bit": {
-      "url": "https://filetally.com/downloads/v1.1.0/FileTallySetup.exe#/setup.exe",
-      "hash": "0ca128139b2b5ac6606da7cd103ab7e432f1e0f287348fa222e976cc6f03a6be"
+      "url": "https://filetally.com/downloads/v1.2.3/FileTallySetup.exe#/setup.exe",
+      "hash": "0454ca0ef659e9e716ee0e3c1300acf8a5820b4d03db465a31ea684bef356d36"
     }
   },
   "installer": {
@@ -21,6 +21,7 @@
       "$preferences = 'HKCU:\\Software\\FileTally\\Desktop'",
       "$receipt = Join-Path $installDir 'FileTally-scoop.json'",
       "$appFile = Join-Path $installDir 'FileTally.exe'",
+      "$cliFile = Join-Path $installDir 'cli\\filetally.exe'",
       "$uninstaller = Join-Path $installDir 'uninstall.exe'",
       "if ($global) { throw 'FileTally supports per-user Scoop installation only.' }",
       "if (-not [Environment]::Is64BitOperatingSystem -or [Environment]::OSVersion.Version.Major -lt 10) { throw 'FileTally requires 64-bit Windows 10 or later.' }",
@@ -37,7 +38,9 @@
       "if ($process.ExitCode -ne 0) { throw \"FileTally installer exited with code $($process.ExitCode).\" }",
       "$installed = Get-ItemProperty -LiteralPath $registration",
       "if ($installed.InstallLocation.Trim('\"') -ne $installDir) { throw 'The installer did not register the expected per-user location.' }",
-      "if ((Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash -ne '9f49bec65985bd9e772829a8527bdfb1383152e53de7e90dd49ff51c8fda4a18') { throw 'The installed app does not match the accepted release.' }",
+      "if ((Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash -ne 'dfd1477e0b9c6f0a3654b3c022f78ba84b51e625ac2fc3d8d5d729124d3e41a2') { throw 'The installed app does not match the accepted release.' }",
+      "if ((Get-FileHash -LiteralPath $cliFile -Algorithm SHA256).Hash -ne '49ae5fba799785c84453e5c3e374c0a996933cb52e5a6022c364cbe16b7ca045') { throw 'The installed CLI does not match the accepted release.' }",
+      "if ((Get-FileHash -LiteralPath $uninstaller -Algorithm SHA256).Hash -ne '845cc881be32a7f2540649d5029486e99618ed3f005145d23581580950535805') { throw 'The installed uninstaller does not match the accepted release.' }",
       "@{ app = (Get-FileHash -LiteralPath $appFile -Algorithm SHA256).Hash; uninstaller = (Get-FileHash -LiteralPath $uninstaller -Algorithm SHA256).Hash } | ConvertTo-Json -Compress | Set-Content -LiteralPath $receipt -Encoding Ascii"
     ]
   },
